@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-        app_store_connect: Codemagic AJC Player
+      app_store_connect: Codemagic AJC Player
     environment:
       ios_signing:
         distribution_type: app_store
@@ -20,10 +20,13 @@ workflows:
       - name: Set up signing
         script: xcode-project use-profiles
       - name: Build IPA
-        script: xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
+        script: |
+          set -o pipefail
+          xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME" 2>&1 | tee build-ipa-full.log
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - build-ipa-full.log
     publishing:
       app_store_connect:
         auth: integration
