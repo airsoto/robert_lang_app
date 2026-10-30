@@ -15,7 +15,8 @@ settings:
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
     INFOPLIST_KEY_UIUserInterfaceStyle: Dark
     INFOPLIST_KEY_CFBundleDisplayName: Robert J. Lang Origami
-    GENERATE_INFOPLIST_FILE: YES
+    GENERATE_INFOPLIST_FILE: NO
+    INFOPLIST_FILE: RobertLang/Info.plist
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 targets:
   RobertLangOrigami:
