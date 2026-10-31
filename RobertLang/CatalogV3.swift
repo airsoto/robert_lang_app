@@ -195,6 +195,8 @@ struct CatalogRootView: View {
             NavigationStack { CatalogGlobalSearchView() }.tabItem { Label("Search", systemImage: "magnifyingglass") }
         }
         .tint(Theme.gold)
+        .toolbarBackground(Color.black, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }
 
@@ -277,7 +279,11 @@ struct CatalogGridView: View {
     let kind: String
     @State private var query = ""
     @State private var tag: String?
-    private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
+    // Let the image be as wide as its column, never the other way around.
+    private let columns = [
+        GridItem(.flexible(minimum: 0), spacing: 12),
+        GridItem(.flexible(minimum: 0), spacing: 12)
+    ]
     private var frequentTags: [String] {
         let counts = store.entries(kind).flatMap(\.tags).reduce(into: [String: Int]()) { $0[$1, default: 0] += 1 }
         return counts.sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }.prefix(24).map { $0.key }
@@ -299,35 +305,62 @@ struct CatalogGridView: View {
                         }
                     }.scrollIndicators(.hidden)
                 }
-                LazyVGrid(columns: columns, spacing: 18) {
+                LazyVGrid(columns: columns, alignment: .center, spacing: 20) {
                     ForEach(store.search(query, kinds: [kind], tag: tag)) { entry in
-                        NavigationLink { CatalogDetailView(entry: entry) } label: { CatalogCard(entry: entry) }
-                            .buttonStyle(.plain)
+                        NavigationLink { CatalogDetailView(entry: entry) } label: {
+                            CatalogCard(entry: entry)
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-            }.padding()
-        }.background(.black).navigationTitle(CatalogGroup.title(for: kind))
-            .searchable(text: $query, prompt: "Search \(CatalogGroup.title(for: kind))")
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            // Leave room to scroll the last row fully above the floating tab bar.
+            .padding(.bottom, 88)
+        }
+        .background(.black)
+        .navigationTitle(CatalogGroup.title(for: kind))
+        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .searchable(text: $query, prompt: "Search \(CatalogGroup.title(for: kind))")
     }
 }
 
 struct CatalogCard: View {
     let entry: CatalogEntry
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12).fill(Theme.surface)
                 if let cover = entry.coverURL {
-                    RemoteImage(url: cover).frame(height: 155).clipped()
+                    // RemoteImage limits both its layout and drawing to this card.
+                    RemoteImage(url: cover)
                 } else {
                     Image(systemName: CatalogGroup.symbol(for: entry.kind))
-                        .font(.system(size: 36, weight: .ultraLight)).foregroundStyle(Theme.gold)
+                        .font(.system(size: 36, weight: .ultraLight))
+                        .foregroundStyle(Theme.gold)
                 }
-            }.frame(height: 155).clipShape(RoundedRectangle(cornerRadius: 12))
-            Text(entry.title).font(.subheadline.weight(.medium)).lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading).multilineTextAlignment(.leading)
-            Text(entry.subtitle).font(.system(size: 10, weight: .medium)).tracking(1).foregroundStyle(Theme.gold)
-        }.foregroundStyle(.white)
+            }
+            .frame(height: 146)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            Text(entry.title)
+                .font(.system(size: 15, weight: .semibold))
+                .lineLimit(2, reservesSpace: true)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            Text(entry.subtitle)
+                .font(.system(size: 10, weight: .medium))
+                .tracking(1)
+                .foregroundStyle(Theme.gold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .foregroundStyle(.white)
+        .contentShape(Rectangle())
     }
 }
 

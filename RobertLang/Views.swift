@@ -64,16 +64,35 @@ struct PageCard: View {
     }
 }
 
+// An AsyncImage's intrinsic size can grow beyond a flexible LazyVGrid column
+// when scaledToFill() is used on its own. Pin both dimensions to the real cell.
 struct RemoteImage: View {
     let url: URL?
     var body: some View {
-        AsyncImage(url: url) { phase in
-            switch phase {
-            case .success(let image): image.resizable().scaledToFill()
-            case .failure: Image(systemName: "photo").resizable().scaledToFit().padding(36).foregroundStyle(.gray)
-            default: ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        GeometryReader { geometry in
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image.resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                case .failure:
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: min(geometry.size.width * 0.35, 56),
+                               height: min(geometry.size.height * 0.35, 56))
+                        .foregroundStyle(.gray)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                default:
+                    ProgressView()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                }
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        .clipped()
     }
 }
 
