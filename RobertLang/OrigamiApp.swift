@@ -2,12 +2,12 @@ import SwiftUI
 
 @main
 struct OrigamiApp: App {
-    @StateObject private var library = OrigamiLibrary()
+    @StateObject private var catalog = CatalogStore()
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(library)
+            CatalogRootView().environmentObject(catalog)
                 .preferredColorScheme(.dark)
-                .task { await library.load() }
+                .task { await catalog.load() }
         }
     }
 }

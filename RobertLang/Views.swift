@@ -253,7 +253,7 @@ struct CreditsView: View {
         VStack(alignment: .leading, spacing: 6) {
             Divider()
             Text("© 2004–2026 Robert J. Lang").font(.caption)
-            Text("Developed for iPhone by Ángel Soto, with permission of Robert J. Lang.").font(.caption)
+            Text("iPhone app developed by Ángel Soto. Independent catalog viewer.").font(.caption)
             Link("Copyright and usage", destination: URL(string: "https://langorigami.com/copyright/")!)
                 .font(.caption).foregroundStyle(Theme.gold)
         }.foregroundStyle(.secondary).padding(.top, 22)

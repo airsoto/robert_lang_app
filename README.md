@@ -1,35 +1,33 @@
-# Robert J. Lang Origami — iPhone (SwiftUI)
+# Robert J. Lang Origami — iOS 1.1.0 (Build 2)
 
-Native iOS 17+ application with the **actual crawler export** (`RobertLang/langorigami.json`, 2,303 pages). © 2004–2026 Robert J. Lang. Developed for iPhone by Ángel Soto, with permission of Robert J. Lang (credit wording supplied by the requester; verify distribution permission).
+Independent SwiftUI catalog viewer for **langorigami.com** (iOS 17+, iPhone).
 
-## Setup
+## What's new
 
-1. On a Mac: `brew install xcodegen`.
-2. In this directory: `xcodegen generate`.
-3. Open `RobertLangOrigami.xcodeproj` in Xcode, set your Apple Developer team and signing settings; install an app icon once supplied.
-4. Or connect this GitHub repo in Codemagic; configure the App Store Connect integration and the signing workflow in `codemagic.yaml`.
+- Uses the October 31, 2026 crawler schema v3 (`RobertLang/langorigami.json`) with native collections.
+- Browse 535 Artworks, 174 Crease Patterns, 794 Compositions, 241 Published Instructions, 151 Exhibitions, 268 Lectures, 174 Publications and 72 Articles; 6 artist records.
+- Five primary tabs: Explore, Portfolio, Events, Library and Search. About and update controls are accessible from Explore.
+- Opus, metadata, filters, galleries, related artworks and PDF links displayed in native views.
+- Includes catalog metadata for offline use; photos and PDFs are accessed from the official website when online.
+- Uses a verified `Info.plist` with orientation/version keys. Existing signing and assets are unchanged.
 
-## Catalogue data
+## Building with Codemagic
 
-The app includes `RobertLang/langorigami.json` as a bundled resource, and checks `https://raw.githubusercontent.com/airsoto/robert_lang_app/main/langorigami.json` for a newer copy. When offline the bundled data still works. Image and PDF links refer to the original website/hosts and require network connectivity. The initial inventory contains 3 crawler errors, URL variants, and pages with dynamic/loading titles.
+Codemagic runs `xcodegen generate`, signs the application and uploads the IPA to App Store Connect. Version and build numbers are in `project.yml`. `submit_to_testflight: false` prevents Codemagic attempting an external TestFlight review before beta contact details are complete; internal TestFlight groups can use the processed build directly.
 
-### Supported screens
+## JSON data
 
-Home, Portfolio, Events, Books & Articles, Search and About; automatic route-based classification; keyword/tag filtering; artwork grids, photo galleries, internal links, external resource links and PDFKit reader. Styling follows the supplied black/white/taupe branding. The original site's exact licensed font files are NOT bundled: SwiftUI uses system typography. To achieve an exact font match, supply appropriately licensed typefaces and register them in the project.
+`RobertLang/langorigami.json` is the **actual app bundle resource** and the optional refresh URL points to the same file on GitHub:
 
-### Known differences and limits
+`https://raw.githubusercontent.com/airsoto/robert_lang_app/main/RobertLang/langorigami.json`
 
-The JSON is an extracted inventory rather than a full CMS export. Some tags may be inferred from visible text, original website interactive scripts/search backend cannot be recreated fully from static JSON, and text flattened by the crawler may lose original paragraph structure. The app has not been compiled on macOS/Xcode in this environment. Do not assume App Store distribution or media reproduction rights solely from a credit line.
+To refresh the catalog, replace this file with the output of `langorigami_crawler_v3.py` (schema version `3.0`). No separate hosting service is needed.
 
-## GitHub upload from Ubuntu
+## Caveats
 
-Create the `robert_lang_app` repository in your GitHub account if it does not exist. Then:
+- The crawler reported 2 HTTP 404 errors and its `complete` flag is `false`.
+- Some compositions, lectures and exhibitions have no cover photograph in the source; the app shows a neutral placeholder rather than an unrelated photo.
+- All photographs, artwork, texts and diagrams belong to their respective rightsholders. This repository and its credits do **not** represent proof of Robert J. Lang's permission to distribute the app.
+- This release's source has passed Swift syntax checks on Linux; a full iOS compile must be confirmed by Xcode/Codemagic.
 
-```bash
-git init
-git add .
-git commit -m "Initial iOS app with Lang Origami catalogue"
-git branch -M main
-git remote add origin https://github.com/airsoto/robert_lang_app.git
-git push -u origin main
-```
+App adaptation: Ángel Soto. Original site: https://langorigami.com/.
