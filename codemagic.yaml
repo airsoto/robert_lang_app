@@ -12,11 +12,23 @@ workflows:
       vars:
         XCODE_PROJECT: RobertLangOrigami.xcodeproj
         XCODE_SCHEME: RobertLangOrigami
+        BUILD_NUMBER_BASE: "4"
     scripts:
       - name: Install XcodeGen
         script: brew install xcodegen
       - name: Generate Xcode project
         script: xcodegen generate
+      - name: Set unique build number
+        script: |
+          set -euo pipefail
+          : "${PROJECT_BUILD_NUMBER:?Codemagic project build counter is required}"
+          if ! [[ "$PROJECT_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Invalid Codemagic project build counter"
+            exit 1
+          fi
+          NEXT_BUILD_NUMBER=$((BUILD_NUMBER_BASE + 10#$PROJECT_BUILD_NUMBER))
+          echo "Setting CFBundleVersion to $NEXT_BUILD_NUMBER"
+          agvtool new-version -all "$NEXT_BUILD_NUMBER"
       - name: Set up signing
         script: xcode-project use-profiles
       - name: Build IPA
